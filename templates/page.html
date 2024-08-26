@@ -1,0 +1,445 @@
+<?php
+
+session_start();
+
+// Check if the user is already logged in
+if (isset($_SESSION["user_id"])) {
+    // User is already logged in, redirect to the dashboard or desired page
+    redirect("../dashboard.php");
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Your Account</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+     <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+    <style>
+        body {
+            background-image: url("../assets/images/login_background.jpg"'); /* Replace with your image path */
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+.custom{
+    width: 80%; /* Reduce the width of the form */
+    max-width: 400px; /* Further limit the maximum width */
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header, .card-body {
+    text-align: center;
+}
+
+.card-body h2 {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+label {
+    color: #333; /* Dark label color */
+    font-weight: bold;
+}
+
+.form-control {
+    border-radius: 4px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    width: 100%;
+}
+
+.input-group-text {
+    cursor: pointer;
+    background-color: #fff;
+    border-left: 0;
+}
+
+.toggle-password {
+    color: #333;
+}
+
+@media (max-width: 576px) {
+    .card {
+        margin: 20px;
+        width: 90%; /* Adjust width for smaller screens */
+    }
+}
+    </style>
+</head>
+
+<body class="hold-transition login-page">
+    <div class="custom">
+    <div class="card">
+         <div class="card-header text-center pt-2">
+                <a href="index.php">
+                    <img src="../assets/img/tf-logo.png" alt="TENDERFOCUS Bid" class="h1" style="max-width: 100%; max-height: 100px;">
+                </a>
+
+            </div>
+        <div class="card-body">
+            <h2>Register Your Account</h2>
+            <form action="../includes/process_registration.php" method="post" enctype="multipart/form-data">
+                <!-- First row of inputs (two in a row) -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="business_name">Name of Business*</label>
+                        <input type="text" name="business_name" id="business_name" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="registration_number">Registration Number*</label>
+                        <input type="text" name="registration_number" id="registration_number" class="form-control" required>
+                    </div>
+                </div>
+
+               <!-- Second row of inputs (two in a row) -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="country">Country*</label>
+                        <div class="custom-select-wrapper">
+                            <select name="country" id="country" class="form-control" required>
+                                <?php
+                                // List of countries in an associative array
+                                $countries = array(
+                                    "AF" => "Afghanistan",
+                                    "AL" => "Albania",
+                                    "DZ" => "Algeria",
+                                    "AD" => "Andorra",
+                                    "AO" => "Angola",
+                                    "AG" => "Antigua and Barbuda",
+                                    "AR" => "Argentina",
+                                    "AM" => "Armenia",
+                                    "AU" => "Australia",
+                                    "AT" => "Austria",
+                                    "AZ" => "Azerbaijan",
+                                    "BS" => "Bahamas",
+                                    "BH" => "Bahrain",
+                                    "BD" => "Bangladesh",
+                                    "BB" => "Barbados",
+                                    "BY" => "Belarus",
+                                    "BE" => "Belgium",
+                                    "BZ" => "Belize",
+                                    "BJ" => "Benin",
+                                    "BT" => "Bhutan",
+                                    "BO" => "Bolivia",
+                                    "BA" => "Bosnia and Herzegovina",
+                                    "BW" => "Botswana",
+                                    "BR" => "Brazil",
+                                    "BN" => "Brunei",
+                                    "BG" => "Bulgaria",
+                                    "BF" => "Burkina Faso",
+                                    "BI" => "Burundi",
+                                    "CV" => "Cabo Verde",
+                                    "KH" => "Cambodia",
+                                    "CM" => "Cameroon",
+                                    "CA" => "Canada",
+                                    "CF" => "Central African Republic",
+                                    "TD" => "Chad",
+                                    "CL" => "Chile",
+                                    "CN" => "China",
+                                    "CO" => "Colombia",
+                                    "KM" => "Comoros",
+                                    "CG" => "Congo",
+                                    "CR" => "Costa Rica",
+                                    "HR" => "Croatia",
+                                    "CU" => "Cuba",
+                                    "CY" => "Cyprus",
+                                    "CZ" => "Czech Republic",
+                                    "CI" => "C么te d'Ivoire",
+                                    "DK" => "Denmark",
+                                    "DJ" => "Djibouti",
+                                    "DM" => "Dominica",
+                                    "DO" => "Dominican Republic",
+                                    "EC" => "Ecuador",
+                                    "EG" => "Egypt",
+                                    "SV" => "El Salvador",
+                                    "GQ" => "Equatorial Guinea",
+                                    "ER" => "Eritrea",
+                                    "EE" => "Estonia",
+                                    "ET" => "Ethiopia",
+                                    "FJ" => "Fiji",
+                                    "FI" => "Finland",
+                                    "FR" => "France",
+                                    "GA" => "Gabon",
+                                    "GM" => "Gambia",
+                                    "GE" => "Georgia",
+                                    "DE" => "Germany",
+                                    "GH" => "Ghana",
+                                    "GR" => "Greece",
+                                    "GD" => "Grenada",
+                                    "GT" => "Guatemala",
+                                    "GN" => "Guinea",
+                                    "GW" => "Guinea-Bissau",
+                                    "GY" => "Guyana",
+                                    "HT" => "Haiti",
+                                    "HN" => "Honduras",
+                                    "HU" => "Hungary",
+                                    "IS" => "Iceland",
+                                    "IN" => "India",
+                                    "ID" => "Indonesia",
+                                    "IR" => "Iran",
+                                    "IQ" => "Iraq",
+                                    "IE" => "Ireland",
+                                    "IL" => "Israel",
+                                    "IT" => "Italy",
+                                    "JM" => "Jamaica",
+                                    "JP" => "Japan",
+                                    "JO" => "Jordan",
+                                    "KZ" => "Kazakhstan",
+                                    "KE" => "Kenya",
+                                    "KI" => "Kiribati",
+                                    "KW" => "Kuwait",
+                                    "KG" => "Kyrgyzstan",
+                                    "LA" => "Laos",
+                                    "LV" => "Latvia",
+                                    "LB" => "Lebanon",
+                                    "LS" => "Lesotho",
+                                    "LR" => "Liberia",
+                                    "LY" => "Libya",
+                                    "LI" => "Liechtenstein",
+                                    "LT" => "Lithuania",
+                                    "LU" => "Luxembourg",
+                                    "MG" => "Madagascar",
+                                    "MW" => "Malawi",
+                                    "MY" => "Malaysia",
+                                    "MV" => "Maldives",
+                                    "ML" => "Mali",
+                                    "MT" => "Malta",
+                                    "MH" => "Marshall Islands",
+                                    "MR" => "Mauritania",
+                                    "MU" => "Mauritius",
+                                    "MX" => "Mexico",
+                                    "FM" => "Micronesia",
+                                    "MD" => "Moldova",
+                                    "MC" => "Monaco",
+                                    "MN" => "Mongolia",
+                                    "ME" => "Montenegro",
+                                    "MA" => "Morocco",
+                                    "MZ" => "Mozambique",
+                                    "MM" => "Myanmar",
+                                    "NA" => "Namibia",
+                                    "NR" => "Nauru",
+                                    "NP" => "Nepal",
+                                    "NL" => "Netherlands",
+                                    "NZ" => "New Zealand",
+                                    "NI" => "Nicaragua",
+                                    "NE" => "Niger",
+                                    "NG" => "Nigeria",
+                                    "KP" => "North Korea",
+                                    "MK" => "North Macedonia",
+                                    "NO" => "Norway",
+                                    "OM" => "Oman",
+                                    "PK" => "Pakistan",
+                                    "PW" => "Palau",
+                                    "PS" => "Palestine",
+                                    "PA" => "Panama",
+                                    "PG" => "Papua New Guinea",
+                                    "PY" => "Paraguay",
+                                    "PE" => "Peru",
+                                    "PH" => "Philippines",
+                                    "PL" => "Poland",
+                                    "PT" => "Portugal",
+                                    "QA" => "Qatar",
+                                    "RO" => "Romania",
+                                    "RU" => "Russia",
+                                    "RW" => "Rwanda",
+                                    "KN" => "Saint Kitts and Nevis",
+                                    "LC" => "Saint Lucia",
+                                    "VC" => "Saint Vincent and the Grenadines",
+                                    "WS" => "Samoa",
+                                    "SM" => "San Marino",
+                                    "ST" => "Sao Tome and Principe",
+                                    "SA" => "Saudi Arabia",
+                                    "SN" => "Senegal",
+                                    "RS" => "Serbia",
+                                    "SC" => "Seychelles",
+                                    "SL" => "Sierra Leone",
+                                    "SG" => "Singapore",
+                                    "SK" => "Slovakia",
+                                    "SI" => "Slovenia",
+                                    "SB" => "Solomon Islands",
+                                    "SO" => "Somalia",
+                                    "ZA" => "South Africa",
+                                    "KR" => "South Korea",
+                                    "SS" => "South Sudan",
+                                    "ES" => "Spain",
+                                    "LK" => "Sri Lanka",
+                                    "SD" => "Sudan",
+                                    "SR" => "Suriname",
+                                    "SZ" => "Swaziland",
+                                    "SE" => "Sweden",
+                                    "CH" => "Switzerland",
+                                    "SY" => "Syria",
+                                    "TW" => "Taiwan",
+                                    "TJ" => "Tajikistan",
+                                    "TZ" => "Tanzania",
+                                    "TH" => "Thailand",
+                                    "TL" => "Timor-Leste",
+                                    "TG" => "Togo",
+                                    "TO" => "Tonga",
+                                    "TT" => "Trinidad and Tobago",
+                                    "TN" => "Tunisia",
+                                    "TR" => "Turkey",
+                                    "TM" => "Turkmenistan",
+                                    "TV" => "Tuvalu",
+                                    "UG" => "Uganda",
+                                    "UA" => "Ukraine",
+                                    "AE" => "United Arab Emirates",
+                                    "GB" => "United Kingdom",
+                                    "US" => "United States",
+                                    "UY" => "Uruguay",
+                                    "UZ" => "Uzbekistan",
+                                    "VU" => "Vanuatu",
+                                    "VA" => "Vatican City",
+                                    "VE" => "Venezuela",
+                                    "VN" => "Vietnam",
+                                    "YE" => "Yemen",
+                                    "ZM" => "Zambia",
+                                    "ZW" => "Zimbabwe"
+                                );
+
+
+                                foreach ($countries as $code => $name) {
+                                    echo "<option value=\"$code\">$name</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+
+
+
+
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="phone_number">Phone Number*</label>
+                        <input type="tel" name="phone_number" id="phone_number" class="form-control" required>
+                        <p id="phone_error_message" style="color: red;"></p>
+                    </div>
+                </div>
+
+                <!-- Single input in a row -->
+                <div class="mb-3">
+                    <label for="website">Website (if any)</label>
+                    <input type="text" name="website" id="website" class="form-control">
+                </div>
+
+                <!-- Single input in a row -->
+                <div class="mb-3">
+                    <label for="email">Email*</label>
+                    <input type="email" name="email" id="email" class="form-control" required>
+                </div>
+
+                <!-- Password input -->
+                <div class="mb-3">
+                    <label for="password">Password*</label>
+                    <div class="input-group">
+                        <input type="password" name="password" id="password" class="form-control" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <i toggle="#password" class="fa fa-fw fa-eye field-icon toggle-password"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirm Password input -->
+                <div class="mb-3">
+                    <label for="confirm_password">Confirm Password*</label>
+                    <div class="input-group">
+                        <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <i toggle="#confirm_password" class="fa fa-fw fa-eye field-icon toggle-password"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit button -->
+                <div class="form-group d-flex justify-content-end">
+                    <input type="submit" value="Sign Up" class="btn btn-primary mb-4">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script>
+        // Phone number validation
+        const phoneNumberInput = document.getElementById('phone_number');
+        const errorMessage = document.getElementById('phone_error_message');
+
+        phoneNumberInput.addEventListener('input', function () {
+            const phoneNumber = phoneNumberInput.value;
+            const phonePattern = /^\d{9,}$/; // Require at least 9 digits
+
+            if (phonePattern.test(phoneNumber)) {
+                errorMessage.textContent = ''; // Clear the error message
+            } else {
+                errorMessage.textContent = 'Please enter a valid phone number with at least 9 digits.';
+            }
+        });
+
+        // Password validation
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm_password');
+
+        passwordInput.addEventListener('input', validatePassword);
+
+        function validatePassword() {
+            const password = passwordInput.value;
+
+            // Validate password strength
+            const hasNumber = /[0-9]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasSpecialCharacter = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(password);
+
+            if (password.length >= 8 && hasNumber && hasLowerCase && hasUpperCase && hasSpecialCharacter) {
+                passwordInput.setCustomValidity('');
+            } else {
+                passwordInput.setCustomValidity('Password must be at least 8 characters long and contain at least one number, one lowercase letter, one uppercase letter, and one special character.');
+            }
+        }
+
+        confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+
+        function validatePasswordMatch() {
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordInput.setCustomValidity("Passwords don't match.");
+            } else {
+                confirmPasswordInput.setCustomValidity('');
+            }
+        }
+
+        // Toggle password visibility
+        $(".toggle-password").click(function () {
+            $(this).toggleClass("fa-eye fa-eye-slash");
+            var input = $($(this).attr("toggle"));
+            if (input.attr("type") == "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+        });
+    </script>
+</body>
+
+</html>

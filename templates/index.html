@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo" style="width: 100px; margin-bottom: 20px;">
+       
+        <h1>Emotion Detection from Audio</h1>
+        <form id="audioForm" action="/" method="POST" enctype="multipart/form-data">
+            <div class="file-input">
+                <input type="file" name="file" id="fileInput" accept="audio/*">
+                <label for="fileInput" id="fileLabel">Choose File</label>
+                <span id="fileName">No file chosen</span>
+            </div>
+
+            <!-- Recording audio section -->
+            <div class="record-input">
+                <button type="button" id="recordButton" class="record-btn">Record Audio</button>
+                <button type="button" id="stopButton" disabled>Stop Recording</button>
+                
+                <!-- Countdown timer -->
+                <div id="countdown" class="hidden">Time left: <span id="timer">30</span>s</div>
+                
+                <!-- Progress bar -->
+                <div id="progressContainer" class="hidden">
+                    <div id="progressBar"></div>
+                </div>
+
+                <!-- Recording status -->
+                <span id="recordingStatus">Not recording</span>
+                <input type="hidden" name="audio_data" id="audioData">
+            </div>
+            
+            <button type="submit">Upload and Analyze</button>
+        </form>
+
+        <!-- Loading spinner and message for analysis -->
+        <div id="loading" class="hidden">
+            <div class="spinner"></div>
+            <p>Analyzing your audio, please wait...</p>
+        </div>
+
+        {% if emotion %}
+            <div class="result">
+                <h2>Detected Emotion: {{ emotion }}</h2>
+                <audio controls>
+                    <source src="{{ url_for('static', filename=file_path.split('/')[-1]) }}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Update file name display when a file is selected
+        document.getElementById('fileInput').addEventListener('change', function() {
+            const fileName = this.files[0] ? this.files[0].name : 'No file chosen';
+            document.getElementById('fileName').textContent = fileName;
+        });
+
+        // Recording audio using the device's microphone with user feedback
+        let mediaRecorder;
+        let audioChunks = [];
+        let countdownInterval;
+        const recordButton = document.getElementById('recordButton');
+        const stopButton = document.getElementById('stopButton');
+        const recordingStatus = document.getElementById('recordingStatus');
+        const audioDataInput = document.getElementById('audioData');
+        const timerElement = document.getElementById('timer');
+        const countdownElement = document.getElementById('countdown');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const loadingDiv = document.getElementById('loading');
+        const form = document.getElementById('audioForm');
+        const maxRecordingTime = 30; // Max recording time in seconds
+
+        function updateProgressBar(timeLeft) {
+            const percentage = ((maxRecordingTime - timeLeft) / maxRecordingTime) * 100;
+            progressBar.style.width = percentage + '%';
+        }
+
+        function startCountdown() {
+            let timeLeft = maxRecordingTime;
+            countdownElement.classList.remove('hidden');
+            progressContainer.classList.remove('hidden');
+            countdownInterval = setInterval(() => {
+                timeLeft -= 1;
+                timerElement.textContent = timeLeft;
+                updateProgressBar(timeLeft);
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    stopRecording();
+                }
+            }, 1000);
+        }
+
+        function stopCountdown() {
+            clearInterval(countdownInterval);
+            countdownElement.classList.add('hidden');
+            progressContainer.classList.add('hidden');
+            timerElement.textContent = maxRecordingTime;
+            progressBar.style.width = '0%';
+        }
+
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+                recordingStatus.textContent = 'Recording in progress...';
+                recordButton.disabled = true;
+                stopButton.disabled = false;
+                startCountdown();
+                recordButton.classList.add('recording');
+
+                mediaRecorder.ondataavailable = function(e) {
+                    audioChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = function() {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    audioChunks = [];
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioBlob);
+                    reader.onloadend = function() {
+                        audioDataInput.value = reader.result;
+                    };
+                };
+            }).catch(err => {
+                console.error('Error accessing microphone:', err);
+                alert('Could not access your microphone. Please try again.');
+            });
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                recordingStatus.textContent = 'Recording stopped';
+                recordButton.disabled = false;
+                stopButton.disabled = true;
+                stopCountdown();
+                recordButton.classList.remove('recording');
+            }
+        }
+
+        // Show loading spinner and message during analysis
+        form.addEventListener('submit', function() {
+            loadingDiv.classList.remove('hidden');
+        });
+
+        recordButton.addEventListener('click', startRecording);
+        stopButton.addEventListener('click', stopRecording);
+    </script>
+</body>
+</html>
